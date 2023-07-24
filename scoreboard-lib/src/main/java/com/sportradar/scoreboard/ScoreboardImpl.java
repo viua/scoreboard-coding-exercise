@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 public class ScoreboardImpl implements Scoreboard {
 
-    private static final String GAME_NOT_FOUND = "No game 's%' - 's%' found.";
-    private static final String GAME_ALREADY_STARTED = "Game 's%' - '%s' already started";
+    private static final String GAME_NOT_FOUND = "No game '%s' - '%s' found.";
+    private static final String GAME_ALREADY_STARTED = "Game '%s' - '%s' already started.";
     private static final String GAME_SUMMARY_FORMAT = "%s %s - %s %s";
 
     private final Map<Game, Score> games;
@@ -39,6 +39,21 @@ public class ScoreboardImpl implements Scoreboard {
             throw new IllegalArgumentException(String.format(GAME_NOT_FOUND, homeTeamName, awayTeamName));
         }
         this.games.remove(game);
+    }
+
+    @Override
+    public void updateGameScore(String homeTeamName, Integer homeTeamScore,
+                                String awayTeamName, Integer awayTeamScore) {
+        final Game game = Game.of(homeTeamName, awayTeamName);
+        if (!games.containsKey(game)) {
+            throw new IllegalArgumentException(String.format(GAME_NOT_FOUND,
+                    homeTeamName, awayTeamName));
+        }
+        this.games.computeIfPresent(game, (gameKey, score) -> Score.builder()
+                .startTime(score.getStartTime())
+                .homeTeamScore(homeTeamScore)
+                .awayTeamScore(awayTeamScore)
+                .build());
     }
 
     @Override

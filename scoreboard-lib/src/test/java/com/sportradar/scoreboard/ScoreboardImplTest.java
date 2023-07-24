@@ -44,4 +44,18 @@ class ScoreboardImplTest {
         // then
         assertThat(scoreboard.getGamesSummary(), hasSize(0));
     }
+
+    @Test
+    void shouldUpdateGameScore() {
+        // given
+        scoreboard.startNewGame("Mexico", "Canada");
+
+        // when
+        scoreboard.updateGameScore("Mexico", 1, "Canada", 2);
+
+        // then
+        assertThat(scoreboard.getGamesSummary().get(0), equalTo("Mexico 1 - Canada 2"));
+    }
+
+
 }
