@@ -33,6 +33,15 @@ public class ScoreboardImpl implements Scoreboard {
     }
 
     @Override
+    public synchronized void finishGame(String homeTeamName, String awayTeamName) {
+        final Game game = Game.of(homeTeamName, awayTeamName);
+        if (!this.games.containsKey(game)) {
+            throw new IllegalArgumentException(String.format(GAME_NOT_FOUND, homeTeamName, awayTeamName));
+        }
+        this.games.remove(game);
+    }
+
+    @Override
     public List<String> getGamesSummary() {
         return this.games.entrySet().stream()
                 .map(this::summary)

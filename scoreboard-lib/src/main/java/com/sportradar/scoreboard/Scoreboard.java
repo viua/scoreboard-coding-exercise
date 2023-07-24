@@ -6,9 +6,16 @@ public interface Scoreboard {
     /**
      * Starts new game
      * @param homeTeamName home team name
-     * @param awayTeamName way team name
+     * @param awayTeamName away team name
      */
     void startNewGame(String homeTeamName, String awayTeamName);
+
+    /**
+     * Finish game
+     * @param homeTeamName home team name
+     * @param awayTeamName away team name
+     */
+    void finishGame(String homeTeamName, String awayTeamName);
 
     /**
      * Returns games summary

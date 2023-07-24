@@ -30,4 +30,18 @@ class ScoreboardImplTest {
         assertThat(summary, hasSize(1));
         assertThat(summary.get(0), equalTo("Mexico 0 - Canada 0"));
     }
+
+    @Test
+    void shouldFinishGame() {
+        // given
+        scoreboard.startNewGame("Mexico", "Canada");
+
+        assertThat("The game is not started", scoreboard.getGamesSummary(), hasSize(1));
+
+        // when
+        scoreboard.finishGame("Mexico", "Canada");
+
+        // then
+        assertThat(scoreboard.getGamesSummary(), hasSize(0));
+    }
 }
