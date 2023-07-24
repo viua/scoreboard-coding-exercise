@@ -26,7 +26,7 @@ public class ScoreboardImpl implements Scoreboard {
     public synchronized void startNewGame(String homeTeamName, String awayTeamName) {
         final Game game = Game.of(homeTeamName, awayTeamName);
         if (this.games.containsKey(game)) {
-            throw new RuntimeException(String.format(GAME_ALREADY_STARTED,
+            throw new IllegalArgumentException(String.format(GAME_ALREADY_STARTED,
                     homeTeamName, awayTeamName));
         }
         this.games.put(game, Score.defaultScore());
@@ -42,7 +42,7 @@ public class ScoreboardImpl implements Scoreboard {
     }
 
     @Override
-    public void updateGameScore(String homeTeamName, Integer homeTeamScore,
+    public synchronized void updateGameScore(String homeTeamName, Integer homeTeamScore,
                                 String awayTeamName, Integer awayTeamScore) {
         final Game game = Game.of(homeTeamName, awayTeamName);
         if (!games.containsKey(game)) {
@@ -59,6 +59,7 @@ public class ScoreboardImpl implements Scoreboard {
     @Override
     public List<String> getGamesSummary() {
         return this.games.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(scoreComparator))
                 .map(this::summary)
                 .collect(Collectors.toList());
     }
