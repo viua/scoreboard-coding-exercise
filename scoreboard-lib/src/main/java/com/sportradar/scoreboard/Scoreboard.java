@@ -2,6 +2,9 @@ package com.sportradar.scoreboard;
 
 import java.util.List;
 
+/**
+ * Represents the Scoreboard
+ */
 public interface Scoreboard {
     /**
      * Starts new game
