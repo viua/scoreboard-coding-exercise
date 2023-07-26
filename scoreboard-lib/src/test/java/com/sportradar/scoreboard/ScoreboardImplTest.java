@@ -1,15 +1,14 @@
 package com.sportradar.scoreboard;
 
+import com.sportradar.game.GameSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ScoreboardImplTest {
 
@@ -26,11 +25,19 @@ class ScoreboardImplTest {
         scoreboard.startNewGame("Mexico", "Canada");
 
         // when
-        List<String> summary = scoreboard.getGamesSummary();
+        List<GameSummary> summaries = scoreboard.getGamesSummary();
 
         // then
-        assertThat(summary, hasSize(1));
-        assertThat(summary.get(0), equalTo("Mexico 0 - Canada 0"));
+        assertThat(summaries, hasSize(1));
+
+        var summary = scoreboard.getGamesSummary().get(0);
+
+        assertAll(() -> {
+            assertEquals(0, summary.homeTeamScore());
+            assertEquals("Mexico", summary.homeTeamName());
+            assertEquals(0, summary.awayTeamScore());
+            assertEquals("Canada", summary.awayTeamName());
+        });
     }
 
     @Test
@@ -56,7 +63,14 @@ class ScoreboardImplTest {
         scoreboard.updateGameScore("Mexico", 1, "Canada", 2);
 
         // then
-        assertThat(scoreboard.getGamesSummary().get(0), equalTo("Mexico 1 - Canada 2"));
+        var summary = scoreboard.getGamesSummary().get(0);
+
+        assertAll(() -> {
+            assertEquals(1, summary.homeTeamScore());
+            assertEquals("Mexico", summary.homeTeamName());
+            assertEquals(2, summary.awayTeamScore());
+            assertEquals("Canada", summary.awayTeamName());
+        });
     }
 
     @Test
@@ -72,35 +86,34 @@ class ScoreboardImplTest {
     @Test
     void shouldGetStatisticOrderedByTotalScore() {
         // given
-        var testData = getTestData();
-        var expectedSummary = getExpectedSummaryOrdered();
+        var testData = testData();
 
         // when
         testData.forEach(data -> {
-            scoreboard.startNewGame(data.homeTeamName, data.awayTeamName);
-            scoreboard.updateGameScore(data.homeTeamName, data.homeTeamScore, data.awayTeamName, data.awayTeamScore);
+            scoreboard.startNewGame(data.homeTeamName(), data.awayTeamName());
+            scoreboard.updateGameScore(data.homeTeamName(), data.homeTeamScore(), data.awayTeamName(), data.awayTeamScore());
         });
 
         // then
-        assertIterableEquals(expectedSummary, scoreboard.getGamesSummary());
+        assertIterableEquals(expectedSummaryOrder(), scoreboard.getGamesSummary());
     }
 
-    private List<String> getExpectedSummaryOrdered() {
-        return List.of("Uruguay 6 - Italy 6",
-                "Spain 10 - Brazil 2",
-                "Mexico 0 - Canada 5",
-                "Argentina 3 - Australia 1",
-                "Germany 2 - France 2");
+    private List<GameSummary> expectedSummaryOrder() {
+        return List.of(
+                new GameSummary("Uruguay", 6, "Italy", 6),
+                new GameSummary("Spain", 10, "Brazil", 2),
+                new GameSummary("Mexico", 0, "Canada", 5),
+                new GameSummary("Argentina", 3, "Australia", 1),
+                new GameSummary("Germany", 2, "France", 2));
     }
 
-    private List<TestData> getTestData() {
-        return List.of(new TestData("Mexico", 0, "Canada", 5),
-                new TestData("Spain", 10, "Brazil", 2),
-                new TestData("Germany", 2, "France", 2),
-                new TestData("Uruguay", 6, "Italy", 6),
-                new TestData("Argentina", 3, "Australia", 1));
+    private List<GameSummary> testData() {
+        return List.of(
+                new GameSummary("Mexico", 0, "Canada", 5),
+                new GameSummary("Spain", 10, "Brazil", 2),
+                new GameSummary("Germany", 2, "France", 2),
+                new GameSummary("Uruguay", 6, "Italy", 6),
+                new GameSummary("Argentina", 3, "Australia", 1));
     }
-
-    private record TestData(String homeTeamName, int homeTeamScore, String awayTeamName, int awayTeamScore) { }
 
 }

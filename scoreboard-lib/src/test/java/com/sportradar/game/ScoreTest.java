@@ -2,8 +2,6 @@ package com.sportradar.game;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,11 +23,9 @@ class ScoreTest {
     @Test
     void testScore() {
         // given & when
-        var startTime = LocalDateTime.of(2023, 7, 24, 19, 23);
         var score = Score.builder()
                 .homeTeamScore(5)
                 .awayTeamScore(4)
-                .startTime(startTime)
                 .build();
 
         // then
@@ -37,7 +33,6 @@ class ScoreTest {
             assertEquals(4, score.getAwayTeamScore());
             assertEquals(5, score.getHomeTeamScore());
             assertEquals(9, score.getTotalScore());
-            assertEquals(startTime, score.getStartTime());
         });
     }
 }

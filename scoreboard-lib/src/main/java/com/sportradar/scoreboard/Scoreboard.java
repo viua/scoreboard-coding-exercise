@@ -1,5 +1,7 @@
 package com.sportradar.scoreboard;
 
+import com.sportradar.game.GameSummary;
+
 import java.util.List;
 
 /**
@@ -31,7 +33,7 @@ public interface Scoreboard {
 
     /**
      * Returns games summary
-     * @return list of games summary
+     * @return list of games summaries
      */
-    List<String> getGamesSummary();
+    List<GameSummary> getGamesSummary();
 }
