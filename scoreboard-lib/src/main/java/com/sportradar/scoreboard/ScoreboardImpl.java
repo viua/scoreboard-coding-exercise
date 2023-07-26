@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -28,49 +29,51 @@ public class ScoreboardImpl implements Scoreboard {
     }
 
     @Override
-    public synchronized void startNewGame(String homeTeamName, String awayTeamName) {
-        final Game game = Game.of(homeTeamName, awayTeamName, LocalDateTime.now());
-        if (this.games.containsKey(game)) {
-            throw new IllegalArgumentException(String.format(GAME_ALREADY_STARTED,
-                    homeTeamName, awayTeamName));
+    public void startNewGame(String homeTeamName, String awayTeamName) {
+        var gameAlreadyStarted = games.putIfAbsent(Game.of(homeTeamName, awayTeamName, LocalDateTime.now()),
+                Score.defaultScore());
+        if (Objects.nonNull(gameAlreadyStarted)) {
+            throw new IllegalArgumentException(String.format(GAME_ALREADY_STARTED, homeTeamName, awayTeamName));
         }
-        this.games.put(game, Score.defaultScore());
     }
 
     @Override
-    public synchronized void finishGame(String homeTeamName, String awayTeamName) {
-        final Game game = Game.of(homeTeamName, awayTeamName);
-        if (!this.games.containsKey(game)) {
+    public void finishGame(String homeTeamName, String awayTeamName) {
+        var removedGame = games.remove(Game.of(homeTeamName, awayTeamName));
+        if (Objects.isNull(removedGame)) {
             throw new IllegalArgumentException(String.format(GAME_NOT_FOUND, homeTeamName, awayTeamName));
         }
-        this.games.remove(game);
     }
 
     @Override
-    public synchronized void updateGameScore(String homeTeamName, Integer homeTeamScore,
+    public void updateGameScore(String homeTeamName, Integer homeTeamScore,
                                              String awayTeamName, Integer awayTeamScore) {
-        final Game game = Game.of(homeTeamName, awayTeamName);
-        if (!games.containsKey(game)) {
+        var computedScore = games.computeIfPresent(Game.of(homeTeamName, awayTeamName),
+                (gameKey, score) -> Score.builder()
+                        .homeTeamScore(homeTeamScore)
+                        .awayTeamScore(awayTeamScore)
+                        .build());
+        if (Objects.isNull(computedScore)) {
             throw new IllegalArgumentException(String.format(GAME_NOT_FOUND,
                     homeTeamName, awayTeamName));
         }
-        this.games.computeIfPresent(game, (gameKey, score) -> Score.builder()
-                .homeTeamScore(homeTeamScore)
-                .awayTeamScore(awayTeamScore)
-                .build());
     }
 
 
     @Override
     public List<GameSummary> getGamesSummary() {
-        return this.games.entrySet().stream()
+        return games.entrySet().stream()
                 .sorted(scoreComparator)
                 .map(this::summary)
                 .collect(Collectors.toList());
     }
 
     private GameSummary summary(Map.Entry<Game, Score> entry) {
-        return new GameSummary(entry.getKey().getHomeTeamName(), entry.getValue().getHomeTeamScore(),
-                entry.getKey().getAwayTeamName(), entry.getValue().getAwayTeamScore());
+        return new GameSummary(
+                entry.getKey().getHomeTeamName(),
+                entry.getValue().getHomeTeamScore(),
+                entry.getKey().getAwayTeamName(),
+                entry.getValue().getAwayTeamScore()
+        );
     }
 }

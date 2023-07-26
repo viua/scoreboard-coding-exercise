@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Score {
+public final class Score {
 
     static final Integer DEFAULT_SCORE = 0;
 
@@ -16,10 +16,10 @@ public class Score {
                 .build();
     }
 
-    private Integer homeTeamScore;
-    private Integer awayTeamScore;
+    private final Integer homeTeamScore;
+    private final Integer awayTeamScore;
 
-    public synchronized Integer getTotalScore() {
+    public Integer getTotalScore() {
         return this.homeTeamScore + this.awayTeamScore;
     }
 }
