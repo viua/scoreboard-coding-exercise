@@ -1,5 +1,6 @@
 package com.sportradar.scoreboard;
 
+import com.sportradar.exception.ScoreboardException;
 import com.sportradar.game.GameSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class ScoreboardImplTest {
         scoreboard.startNewGame("Mexico", "Canada");
 
         // when & then
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ScoreboardException.GameAlreadyStartedException.class,
                 () -> scoreboard.startNewGame("Mexico", "Canada"));
     }
 
